@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  django:
+    command: bash -c "pip install -q -r ./main/mysite/requirements.txt && python ./main/mysite/manage.py migrate && python ./main/mysite/manage.py runserver 0.0.0.0:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: mysite.settings
+    stdin_open: true
+#    tty: true - this was initially set to true. after refactoring, docker logs did not output anymore; disabling this seems to do the trick - https://github.com/docker/compose/issues/9288
+    restart: always
+    ports:
+      - "8000:8000"
+    build:
+      context: "."
+      dockerfile: ./Dockerfile
+    volumes:
+      - .:/basic-django-app
