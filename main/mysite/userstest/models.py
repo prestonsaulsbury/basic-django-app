@@ -17,7 +17,7 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.email
 
-class Product(models.Model):
-    name = models.CharField(max_length=255)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    description = models.TextField()
+class TodoItem(models.Model):
+    name = models.CharField(_("Name"), max_length=256, null=False, blank=False)
+    is_checked = models.BooleanField(_("Is checked"), default=False)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=False, blank=False)
