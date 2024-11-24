@@ -47,6 +47,28 @@ def todo_items(request):
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
+    if request.method == 'PATCH':
+        try:
+            data = json.loads(request.body)
+            id = data.get('id')
+            is_checked = data.get('is_checked', False)
+            username = data.get('username')
+
+            if not username:
+                return JsonResponse({'error': 'Missing required fields'}, status=400)
+
+            try:
+                todo_item = TodoItem.objects.get(id=id)
+            except TodoItem.DoesNotExist:
+                return JsonResponse({'error': 'Invalid to do item id'}, status=400)
+
+            todo_item.is_checked = is_checked
+            todo_item.save()
+
+            return JsonResponse({'message': 'Todo item update', 'todo_id': todo_item.id}, status=200)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
     if request.method == 'GET':
         try:
             username = request.GET.get('username')
