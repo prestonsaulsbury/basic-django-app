@@ -47,6 +47,26 @@ def todo_items(request):
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
+
+    if request.method == 'DELETE':
+        try:
+            data = json.loads(request.body)
+            id = data.get('id')
+            username = data.get('username')
+
+            if not username:
+                return JsonResponse({'error': 'Missing required fields'}, status=400)
+
+            user = CustomUser.objects.get(username=username)
+            todo_item = TodoItem.objects.get(
+                id=id,
+                user=user
+            ).delete()
+
+            return JsonResponse({'message': 'Todo item deleted'}, status=200)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
     if request.method == 'PATCH':
         try:
             data = json.loads(request.body)
