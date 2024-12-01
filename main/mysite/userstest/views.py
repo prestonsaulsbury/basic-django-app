@@ -71,6 +71,7 @@ def todo_items(request):
         try:
             data = json.loads(request.body)
             id = data.get('id')
+            name = data.get('name', '')
             is_checked = data.get('is_checked', False)
             username = data.get('username')
 
@@ -83,6 +84,8 @@ def todo_items(request):
                 return JsonResponse({'error': 'Invalid to do item id'}, status=400)
 
             todo_item.is_checked = is_checked
+            if name:
+                todo_item.name = name
             todo_item.save()
 
             return JsonResponse({'message': 'Todo item update', 'todo_id': todo_item.id}, status=200)
