@@ -1,10 +1,10 @@
 import json
 
 from django.http import HttpResponse
+from .models import TodoItem, CustomUser
+from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
-from userstest.models import CustomUser
-
 
 def check_user(request):
     username = request.GET.get('username')
@@ -18,10 +18,6 @@ def check_user(request):
             status_code = 201
 
     return HttpResponse(status=status_code)
-
-
-from django.http import JsonResponse
-from .models import TodoItem, CustomUser
 
 
 @csrf_exempt
@@ -114,10 +110,6 @@ def todo_items(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
-from django.contrib.auth.models import User
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
 
 @csrf_exempt
 def sign_up(request):
