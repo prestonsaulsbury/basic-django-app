@@ -119,17 +119,16 @@ def sign_up(request):
             username = data.get('username')
             email = data.get('email')
             password = data.get('password')
-
             if not username or not email or not password:
                 return JsonResponse({'error': 'All fields are required'}, statues=400)
 
-            if User.objects.filter(email=email).exists():
+            if CustomUser.objects.filter(email=email).exists():
                 return JsonResponse({'error': 'Email must be unique'}, status=400)
 
-            # Create the user
-            user = User.objects.create_user(username=username, email=email, password=password)
-            user.save()
 
+            # Create the user
+            user = CustomUser.objects.create_user(username=username, email=email, password=password)
+            user.save()
             return JsonResponse({'message': 'User created successfully'}, status=200)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
