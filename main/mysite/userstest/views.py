@@ -1,10 +1,24 @@
+import datetime
 import json
+import jwt
 
 from django.http import HttpResponse
 from .models import TodoItem, CustomUser
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+
+def get_user_from_token(request):
+    token = request.COOKIES.get('todo-token')
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, 'SOME_STRING', algorithms=['HS256'])
+        user = CustomUser.objects.get(id=payload['id'])
+        return user
+    except (jwt.ExpiredSignatureError, jwt.DecodeError, CustomUser.DoesNotExist):
+        return None
+
 
 def check_user(request):
     username = request.GET.get('username')
@@ -135,3 +149,56 @@ def sign_up(request):
 
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def login(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            password = data.get('password')
+
+            user = CustomUser.objects.get(email=email)
+            valid_password = user.check_password(password)
+            if valid_password:
+                # Generate JWT
+                payload = {
+                    'id': user.id,
+                    'email': user.email,
+                    'exp': datetime.datetime.utcnow() + datetime.timedelta(days=14),  # Expire in 1 day
+                    'iat': datetime.datetime.utcnow()
+                }
+                token = jwt.encode(payload, 'SOME_STRING', algorithm='HS256')
+
+                response = JsonResponse({'message': 'User login successfully'})
+                response.set_cookie(
+                    key='todo-token',
+                    value=token,
+                    httponly=True,  # Prevents JavaScript access (XSS protection)
+                    secure=False,  # Only send over HTTPS (set to False for local testing)
+                    samesite='Lax'  # Adjust based on your needs
+                )
+
+                return response
+
+            return JsonResponse({'error': 'Invalid email or password'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def user_me(request):
+    if request.method == 'GET':
+        user = get_user_from_token(request)
+        if user:
+            user_data = {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'date_joined': user.date_joined,
+            }
+            return JsonResponse(user_data, status=200)
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
