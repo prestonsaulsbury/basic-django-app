@@ -174,9 +174,9 @@ def login(request):
                 response.set_cookie(
                     key='todo-token',
                     value=token,
-                    httponly=True,  # Prevents JavaScript access (XSS protection)
+                    httponly=False,  # Prevents JavaScript access (XSS protection)
                     secure=False,  # Only send over HTTPS (set to False for local testing)
-                    samesite='Lax'  # Adjust based on your needs
+                    samesite='none'  # Adjust based on your needs
                 )
 
                 return response
