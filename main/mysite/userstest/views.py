@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 def get_user_from_token(request):
-    token = request.COOKIES.get('todo-token')
+    token = request.COOKIES.get('todo_token')
     if not token:
         return None
     try:
@@ -41,12 +41,11 @@ def todo_items(request):
             data = json.loads(request.body)  # Parse JSON payload
             name = data.get('name')
             is_checked = data.get('is_checked', False)
-            username = data.get('username')
 
-            if not name or not username:
+            if not name:
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
-            user = CustomUser.objects.get(username=username)
+            user = get_user_from_token(request)
             todo_item = TodoItem.objects.create(
                 name=name,
                 is_checked=is_checked,
@@ -62,12 +61,8 @@ def todo_items(request):
         try:
             data = json.loads(request.body)
             id = data.get('id')
-            username = data.get('username')
 
-            if not username:
-                return JsonResponse({'error': 'Missing required fields'}, status=400)
-
-            user = CustomUser.objects.get(username=username)
+            user = get_user_from_token(request)
             todo_item = TodoItem.objects.get(
                 id=id,
                 user=user
@@ -83,15 +78,12 @@ def todo_items(request):
             id = data.get('id')
             name = data.get('name', '')
             is_checked = data.get('is_checked', False)
-            username = data.get('username')
-
-            if not username:
-                return JsonResponse({'error': 'Missing required fields'}, status=400)
 
             try:
-                todo_item = TodoItem.objects.get(id=id)
+                user = get_user_from_token(request)
+                todo_item = TodoItem.objects.get(id=id, user=user)
             except TodoItem.DoesNotExist:
-                return JsonResponse({'error': 'Invalid to do item id'}, status=400)
+                return JsonResponse({'error': 'Invalid to do item id or invalid user'}, status=400)
 
             todo_item.is_checked = is_checked
             if name:
@@ -104,9 +96,8 @@ def todo_items(request):
 
     if request.method == 'GET':
         try:
-            username = request.GET.get('username')
 
-            user = CustomUser.objects.get(username=username)
+            user = get_user_from_token(request)
             todo_items = TodoItem.objects.filter(user=user)
             todo_items_data = [
                 {
@@ -172,11 +163,12 @@ def login(request):
 
                 response = JsonResponse({'message': 'User login successfully'})
                 response.set_cookie(
-                    key='todo-token',
+                    key='todo_token',
                     value=token,
-                    httponly=False,  # Prevents JavaScript access (XSS protection)
-                    secure=False,  # Only send over HTTPS (set to False for local testing)
-                    samesite='none'  # Adjust based on your needs
+                    httponly=True,  # 🔥 Ensures security but still sends cookie
+                    secure=False,  # ✅ Must be False for HTTP localhost
+                    samesite="Lax",  # ✅ Required for localhost authentication
+                    path="/"  # ✅ Makes cookie accessible across all routes
                 )
 
                 return response

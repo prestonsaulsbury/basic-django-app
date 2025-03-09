@@ -29,8 +29,6 @@ ALLOWED_HOSTS = [
     '*'
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
-
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',  # Your frontend domain
     'http://127.0.0.1:3000',  # Another local domain
@@ -65,8 +63,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = False  # This must be False when credentials are allowed
+CORS_ALLOW_CREDENTIALS = True  # ✅ Allows cookies in cross-origin requests
+CORS_ALLOW_ALL_ORIGINS = False  # ❌ Must be False when allowing credentials
+
 ROOT_URLCONF = 'mysite.urls'
 
 TEMPLATES = [
