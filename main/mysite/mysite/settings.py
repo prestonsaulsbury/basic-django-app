@@ -128,6 +128,8 @@ USE_I18N = True
 
 USE_TZ = True
 
+MAILERSEND_TOKEN = 'mlsn.b6309a32195215e8e3814b18b95749fb8ce9a065f7ad4ff7e34eb4b2d6ff8815'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
