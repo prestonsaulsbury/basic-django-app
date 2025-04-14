@@ -128,7 +128,12 @@ USE_I18N = True
 
 USE_TZ = True
 
-MAILERSEND_TOKEN = 'mlsn.b6309a32195215e8e3814b18b95749fb8ce9a065f7ad4ff7e34eb4b2d6ff8815'
+MAILERSEND_API_KEY = 'mlsn.b6309a32195215e8e3814b18b95749fb8ce9a065f7ad4ff7e34eb4b2d6ff8815'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+MAILERSEND_SMTP_PORT = 587
+MAILERSEND_SMTP_USERNAME = 'XXXX@verified-domain.com'
+MAILERSEND_SMTP_HOST = 'smtp.mailersend.net'
 
 
 # Static files (CSS, JavaScript, Images)
