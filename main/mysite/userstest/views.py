@@ -127,25 +127,29 @@ def sign_up(request):
             password = data.get('password')
 
             if not username or not email or not password:
-                return JsonResponse({'error': 'All fields are required'}, statues=400)
+                return JsonResponse({'error': 'All fields are required'}, status=400)
 
-            username_pattern = r"/^[a-zA-Z]{3,64}$/"
+            username_pattern = r"^[a-zA-Z]{3,64}$"
             match = re.search(username_pattern, username)
+
+            print(match)
+
             if not match:
                 print("Pattern not found.")
-                return JsonResponse({'error': 'No Special Characters of Digits Allowed in User Name'}, statues=400)
+                return JsonResponse({'error': 'No Special Characters or Digits Allowed in User Name'}, status=400)
 
-            email_pattern = r"/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/"
+            email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
             match = re.search(email_pattern, email)
             if not match:
                 print("Pattern not found.")
-                return JsonResponse({'error': 'Please Enter a Valid Email Address'}, statues=400)
+                return JsonResponse({'error': 'Please Enter a Valid Email Address'}, status=400)
 
-            password_pattern = r"/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,64}$/"
+            password_pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,64}$"
+
             match = re.search(password_pattern, password)
             if not match:
                 print("Pattern not found.")
-                return JsonResponse({'error': 'Please Enter a Valid Password'}, statues=400)
+                return JsonResponse({'error': 'Password must be between 8-64 characters, include at least one uppercase, one lowercase letter, one number, and one special character'}, status=400)
 
             if CustomUser.objects.filter(email=email).exists():
                 return JsonResponse({'error': 'Email must be unique'}, status=400)
