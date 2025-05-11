@@ -7,6 +7,7 @@ from .models import TodoItem, CustomUser
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+import re
 
 def get_user_from_token(request):
     token = request.COOKIES.get('todo_token')
@@ -124,11 +125,31 @@ def sign_up(request):
             username = data.get('username')
             email = data.get('email')
             password = data.get('password')
+
             if not username or not email or not password:
                 return JsonResponse({'error': 'All fields are required'}, statues=400)
 
+            username_pattern = r"/^[a-zA-Z]{3,64}$/"
+            match = re.search(username_pattern, username)
+            if not match:
+                print("Pattern not found.")
+                return JsonResponse({'error': 'No Special Characters of Digits Allowed in User Name'}, statues=400)
+
+            email_pattern = r"/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/"
+            match = re.search(email_pattern, email)
+            if not match:
+                print("Pattern not found.")
+                return JsonResponse({'error': 'Please Enter a Valid Email Address'}, statues=400)
+
+            password_pattern = r"/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,64}$/"
+            match = re.search(password_pattern, password)
+            if not match:
+                print("Pattern not found.")
+                return JsonResponse({'error': 'Please Enter a Valid Password'}, statues=400)
+
             if CustomUser.objects.filter(email=email).exists():
                 return JsonResponse({'error': 'Email must be unique'}, status=400)
+
 
 
             # Create the user
