@@ -12,5 +12,6 @@ urlpatterns = [
     path('api/users/signup', views.sign_up, name='sign_up'),
     path('api/users/login', views.login, name='login'),
     path('api/users/me', views.user_me, name='me'),
+    path('api/users/forgot-password', views.forgot_password, name='forgot_password'),
     # path('', include('userstest.urls')),
 ]

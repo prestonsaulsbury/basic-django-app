@@ -3,7 +3,8 @@ from django.conf import settings
 from mailersend import emails
 
 
-template_content = '''
+TEMPLATE_CONTENT = {
+    'reset_password': '''
 <!DOCTYPE html>
 <html>
 <head>
@@ -40,11 +41,12 @@ template_content = '''
 </body>
 </html>
 '''
+}
 
 
 class EmailService:
     @staticmethod
-    def send_email(reset_link, recipient_email, recipient_name):
+    def send_email(recipient_email, recipient_name, template_name, options):
         mailer = emails.NewEmail(settings.MAILERSEND_API_KEY)
 
         # Define an empty dict to populate with mail values
@@ -70,11 +72,12 @@ class EmailService:
         }
 
 
-        # Interpolate the reset link
-        html_content = template_content.replace("{{resetLink}}", reset_link)
+        template_content = TEMPLATE_CONTENT.get(template_name)
+        html_content = template_content.replace("{{resetLink}}", options.get('reset_link'))
+
 
         # Plaintext fallback content
-        plaintext_content = f"Hi {recipient_name},\n\nYou requested to reset your password. Please click the link below:\n{reset_link}\n\nIf you didn’t request this, you can safely ignore this email.\n\nBest regards,\nYour Company"
+        plaintext_content = f"Hi {recipient_name},\n\nYou requested to reset your password. Please click the link below:\n{options.get('reset_link')}\n\nIf you didn’t request this, you can safely ignore this email.\n\nBest regards,\nYour Company"
 
         # Populate mail body
         mailer.set_mail_from(mail_from, mail_body)

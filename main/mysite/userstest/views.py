@@ -4,7 +4,7 @@ import jwt
 
 from django.http import HttpResponse
 from .models import TodoItem, CustomUser
-from django.contrib.auth.models import User
+from .email_service import EmailService
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import re
@@ -219,3 +219,26 @@ def user_me(request):
             return JsonResponse(user_data, status=200)
         return JsonResponse({'error': 'Unauthorized'}, status=401)
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+@csrf_exempt
+def forgot_password(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        email = data.get('email')
+
+        try:
+            user = CustomUser.objects.get(email=email)
+            token = user.generate_reset_token()
+
+            name = user.first_name if user.first_name else 'User'
+            EmailService.send_email(user.email, name, 'reset_password', {'reset_link': f'http://localhost:3000/reset-password/{token}'})
+            return JsonResponse({}, status=200)
+
+
+        except CustomUser.DoesNotExist:
+            return JsonResponse({}, status=400)
+    return JsonResponse({}, status=400)
+
+
+
