@@ -3,7 +3,8 @@ import json
 import jwt
 
 from django.http import HttpResponse
-from .models import TodoItem, CustomUser
+
+from .models import ResetPasswordToken, TodoItem, CustomUser
 from .email_service import EmailService
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -237,6 +238,35 @@ def forgot_password(request):
 
 
         except CustomUser.DoesNotExist:
+            return JsonResponse({}, status=400)
+    return JsonResponse({}, status=400)
+
+
+@csrf_exempt
+def reset_password(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        password = data.get('password')
+        token = data.get('token')
+
+        try:
+            token_obj = ResetPasswordToken.objects.get(value=token)
+            user = token_obj.user
+
+            password_pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,64}$"
+
+            match = re.search(password_pattern, password)
+            if not match:
+                print("Pattern not found.")
+                return JsonResponse({
+                                        'error': 'Password must be between 8-64 characters, include at least one uppercase, one lowercase letter, one number, and one special character'},
+                                    status=400)
+
+            user.set_password(password)
+            user.save()
+            token_obj.delete()
+            return JsonResponse({}, status=200)
+        except ResetPasswordToken.DoesNotExist:
             return JsonResponse({}, status=400)
     return JsonResponse({}, status=400)
 

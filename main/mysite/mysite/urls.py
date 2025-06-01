@@ -13,5 +13,6 @@ urlpatterns = [
     path('api/users/login', views.login, name='login'),
     path('api/users/me', views.user_me, name='me'),
     path('api/users/forgot-password', views.forgot_password, name='forgot_password'),
+    path('api/users/reset-password', views.reset_password, name='reset_password'),
     # path('', include('userstest.urls')),
 ]
