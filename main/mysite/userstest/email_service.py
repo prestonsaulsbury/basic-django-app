@@ -55,7 +55,7 @@ class EmailService:
         # Sender information
         mail_from = {
             "name": "Your Name",
-            "email": "no-reply@trial-69oxl5e2zedl785k.mlsender.net",
+            "email": "no-reply@test-z0vklo6nwqpl7qrx.mlsender.net",
         }
 
         # Recipient information
@@ -83,6 +83,9 @@ class EmailService:
         mailer.set_mail_from(mail_from, mail_body)
         mailer.set_mail_to(recipients, mail_body)
         mailer.set_subject("Reset Your Password", mail_body)
+
+        print(f'''{html_content}''')
+
         mailer.set_html_content(html_content, mail_body)
         mailer.set_plaintext_content(plaintext_content, mail_body)
         mailer.set_reply_to(reply_to, mail_body)
